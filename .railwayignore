@@ -1,0 +1,20 @@
+# Build artifacts
+**/bin/
+**/obj/
+**/out/
+
+# IDEs
+.vs/
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Dev containers
+.devcontainer/
+
+# Git
+.git/
+.gitignore

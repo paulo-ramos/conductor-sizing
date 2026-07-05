@@ -2,6 +2,13 @@ using ConductorSizing.Web.Components;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Configurar porta para Railway (usa variável de ambiente PORT)
+var port = Environment.GetEnvironmentVariable("PORT") ?? "5000";
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.ListenAnyIP(int.Parse(port));
+});
+
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
@@ -16,7 +23,8 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-app.UseHttpsRedirection();
+// Railway gerencia HTTPS, então não redireciona internamente
+// app.UseHttpsRedirection();
 
 app.UseStaticFiles();
 app.UseAntiforgery();

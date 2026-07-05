@@ -1,0 +1,8 @@
+[build]
+builder = "NIXPACKS"
+buildCommand = "dotnet publish src/ConductorSizing.Web/ConductorSizing.Web.csproj -c Release -o out"
+
+[deploy]
+startCommand = "dotnet out/ConductorSizing.Web.dll"
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 10
