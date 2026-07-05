@@ -398,6 +398,10 @@ FodyWeavers.xsd
 *.sln.iml
 .idea/
 
+# Railway publish output
+out/
+
+
 # PDFs gerados
 *.pdf
 

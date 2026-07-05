@@ -1,5 +1,5 @@
 [phases.setup]
-nixPkgs = ["...", "fontconfig", "freetype", "harfbuzz"]
+nixPkgs = ["dotnet-sdk_8", "fontconfig", "freetype", "harfbuzz"]
 
 [phases.build]
 cmds = ["dotnet restore", "dotnet publish src/ConductorSizing.Web/ConductorSizing.Web.csproj -c Release -o out"]
