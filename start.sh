@@ -3,9 +3,6 @@
 echo "⚡ Conductor Sizing - Iniciando aplicação..."
 echo ""
 
-# Navegar para o diretório do projeto Web
-cd src/ConductorSizing.Web
-
 # Verificar se o .NET está instalado
 if ! command -v dotnet &> /dev/null; then
     echo "❌ .NET SDK não encontrado!"
@@ -16,9 +13,9 @@ echo "✅ .NET SDK encontrado:"
 dotnet --version
 echo ""
 
-# Restaurar dependências
+# Restaurar dependências da solução
 echo "📦 Restaurando dependências..."
-dotnet restore
+dotnet restore ConductorSizing.sln
 
 if [ $? -ne 0 ]; then
     echo "❌ Erro ao restaurar dependências"
@@ -27,7 +24,7 @@ fi
 
 echo ""
 echo "🔨 Compilando aplicação..."
-dotnet build -c Release
+dotnet build ConductorSizing.sln -c Release
 
 if [ $? -ne 0 ]; then
     echo "❌ Erro ao compilar aplicação"
@@ -46,7 +43,9 @@ export ASPNETCORE_URLS="http://0.0.0.0:$PORT"
 export ASPNETCORE_ENVIRONMENT="Production"
 
 echo "📍 Servidor rodando na porta $PORT"
+echo "📍 ASPNETCORE_URLS=$ASPNETCORE_URLS"
 echo ""
 
-# Executar a aplicação
-dotnet run --no-build -c Release
+# Executar ESPECIFICAMENTE o projeto Web
+cd src/ConductorSizing.Web
+dotnet run --no-build -c Release --urls "http://0.0.0.0:$PORT"

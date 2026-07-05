@@ -4,11 +4,13 @@ using ConductorSizing.Domain.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configurar Kestrel para container local
+// Configurar Kestrel para aceitar a porta do Railway ou padrão
 builder.WebHost.ConfigureKestrel(options =>
 {
-    var port = builder.Configuration.GetValue<int?>("Port") ?? 8080;
-    options.ListenAnyIP(port);
+    // Tentar pegar a porta da variável de ambiente PORT (Railway) ou usar 8080
+    var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+    var portNumber = int.Parse(port);
+    options.ListenAnyIP(portNumber);
 });
 
 // Adicionar serviços ao container
@@ -31,14 +33,13 @@ var app = builder.Build();
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
-    app.UseHsts();
+    // Não usar HSTS/HTTPS redirect em produção - Railway gerencia isso
 }
 else
 {
     app.UseDeveloperExceptionPage();
+    app.UseHttpsRedirection();
 }
-
-app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseAntiforgery();
 
