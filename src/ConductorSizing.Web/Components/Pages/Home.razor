@@ -1,0 +1,126 @@
+﻿@page "/"
+
+<PageTitle>Dimensionamento de Condutores Elétricos</PageTitle>
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <!-- Cabeçalho Principal -->
+            <div class="text-center mb-5">
+                <h1 class="display-4 fw-bold mb-3" style="color: #E30613;">
+                    <i class="bi bi-lightning-charge-fill"></i> Dimensionamento de Condutores Elétricos
+                </h1>
+                <p class="lead text-muted">Motor de Cálculo de Engenharia Elétrica - NBR 5410:2004</p>
+            </div>
+
+            <!-- Card Principal -->
+            <div class="card shadow-lg border-0 mb-4">
+                <div class="card-body p-5">
+                    <h2 class="h4 mb-4" style="color: #58595B;">
+                        <i class="bi bi-info-circle-fill text-primary"></i> Sobre o Sistema
+                    </h2>
+                    <p class="lead mb-4">
+                        Este sistema realiza o <strong>dimensionamento técnico de condutores elétricos de baixa tensão</strong>, 
+                        seguindo rigorosamente os critérios estabelecidos pela <strong>ABNT NBR 5410:2004</strong>.
+                    </p>
+                    <p class="mb-4">
+                        O motor de cálculo considera todos os fatores técnicos necessários para garantir instalações 
+                        elétricas seguras e em conformidade com as normas brasileiras:
+                    </p>
+                    
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-start">
+                                <i class="bi bi-check-circle-fill text-success me-2 mt-1"></i>
+                                <div>
+                                    <strong>Corrente de Projeto (Ib)</strong>
+                                    <p class="small text-muted mb-0">Cálculo baseado em potência, tensão e fatores operacionais</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-start">
+                                <i class="bi bi-check-circle-fill text-success me-2 mt-1"></i>
+                                <div>
+                                    <strong>Fatores de Correção</strong>
+                                    <p class="small text-muted mb-0">Temperatura, agrupamento e resistividade do solo</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-start">
+                                <i class="bi bi-check-circle-fill text-success me-2 mt-1"></i>
+                                <div>
+                                    <strong>Capacidade de Condução</strong>
+                                    <p class="small text-muted mb-0">Tabelas 36 e 37 (PVC e XLPE/EPR)</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-start">
+                                <i class="bi bi-check-circle-fill text-success me-2 mt-1"></i>
+                                <div>
+                                    <strong>Queda de Tensão</strong>
+                                    <p class="small text-muted mb-0">Verificação do limite máximo de 4%</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-start">
+                                <i class="bi bi-check-circle-fill text-success me-2 mt-1"></i>
+                                <div>
+                                    <strong>Condutor de Proteção (PE)</strong>
+                                    <p class="small text-muted mb-0">Dimensionamento conforme Tabela 58</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-start">
+                                <i class="bi bi-check-circle-fill text-success me-2 mt-1"></i>
+                                <div>
+                                    <strong>Relatório Técnico PDF</strong>
+                                    <p class="small text-muted mb-0">Documento educativo com todos os passos detalhados</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-center mt-4">
+                        <a href="/dimensionamento" class="btn btn-primary btn-lg px-5 py-3">
+                            <i class="bi bi-calculator"></i> Iniciar Dimensionamento
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card SENAI -->
+            <div class="card shadow border-0" style="border-left: 5px solid #E30613 !important;">
+                <div class="card-body p-4">
+                    <h3 class="h5 mb-3" style="color: #E30613;">
+                        <i class="bi bi-mortarboard-fill"></i> Projeto Acadêmico
+                    </h3>
+                    <p class="mb-3">
+                        Este sistema está sendo desenvolvido por alunos do <strong>SENAI Mário Dedini</strong> 
+                        localizado em <strong>Piracicaba - SP</strong>, como parte das atividades complementares do 
+                        <strong>Curso Técnico em Eletroeletrônica</strong>.
+                    </p>
+                    <p class="mb-0 text-muted small">
+                        <i class="bi bi-lightbulb-fill text-warning"></i> 
+                        O objetivo é aplicar conhecimentos teóricos de instalações elétricas em uma ferramenta 
+                        prática e educativa, contribuindo para a formação técnica de qualidade oferecida pelo SENAI.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Rodapé informativo -->
+            <div class="text-center mt-4 mb-5">
+                <p class="text-muted small mb-1">
+                    <i class="bi bi-shield-check"></i> Sistema desenvolvido seguindo as diretrizes da ABNT NBR 5410:2004
+                </p>
+                <p class="text-muted small">
+                    <i class="bi bi-book"></i> Referência técnica para instalações elétricas de baixa tensão
+                </p>
+            </div>
+        </div>
+    </div>
+</div>

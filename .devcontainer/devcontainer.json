@@ -1,0 +1,63 @@
+{
+  "name": "Conductor Sizing - .NET 8",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": ".."
+  },
+  
+  // Usuário não-root para compatibilidade com Podman
+  "remoteUser": "vscode",
+  
+  // Configuração de mounts com flag :Z para SELinux (Fedora + Podman)
+  "mounts": [
+    "source=${localWorkspaceFolder},target=/workspace,type=bind,Z"
+  ],
+  
+  "workspaceFolder": "/workspace",
+  
+  // Extensões VS Code recomendadas
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-dotnettools.csharp",
+        "ms-dotnettools.csdevkit",
+        "kreativ-software.csharpextensions",
+        "jongrant.csharpsortusings",
+        "patcx.vscode-nuget-gallery",
+        "streetsidesoftware.code-spell-checker"
+      ],
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "dotnet.defaultSolution": "ConductorSizing.sln"
+      }
+    }
+  },
+  
+  // Portas para futuro Web API (opcional)
+  "forwardPorts": [5000, 5001],
+  
+  // Comandos pós-criação do container
+  "postCreateCommand": "dotnet restore",
+  
+  // Features adicionais
+  "features": {
+    "ghcr.io/devcontainers/features/git:1": {},
+    "ghcr.io/devcontainers/features/common-utils:2": {
+      "installZsh": true,
+      "username": "vscode",
+      "userUid": "1000",
+      "userGid": "1000"
+    }
+  },
+  
+  // Configurações de segurança compatíveis com Podman
+  "runArgs": [
+    "--userns=keep-id"
+  ],
+  
+  // Permissões necessárias
+  "containerEnv": {
+    "DOTNET_CLI_TELEMETRY_OPTOUT": "1",
+    "DOTNET_SKIP_FIRST_TIME_EXPERIENCE": "1"
+  }
+}

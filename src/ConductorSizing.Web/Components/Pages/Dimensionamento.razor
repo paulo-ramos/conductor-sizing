@@ -1,0 +1,275 @@
+@page "/dimensionamento"
+@rendermode InteractiveServer
+@using ConductorSizing.Application.Services
+@using ConductorSizing.Domain.Models
+@using ConductorSizing.Domain.Enums
+@using ConductorSizing.Infrastructure.Reports
+@using ConductorSizing.Web.Models
+@inject IJSRuntime JS
+
+<PageTitle>Dimensionamento de Condutores</PageTitle>
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="mb-4">
+                <i class="bi bi-calculator"></i> Dimensionamento de Condutores Elétricos
+            </h2>
+            <p class="text-muted">NBR 5410:2004 - Instalações Elétricas de Baixa Tensão</p>
+            <hr />
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-input-cursor-text"></i> Dados de Entrada</h5>
+                </div>
+                <div class="card-body">
+                    <EditForm Model="@_entradaForm" OnValidSubmit="@CalcularDimensionamento">
+                        <div class="mb-3">
+                            <label class="form-label">Identificação do Circuito</label>
+                            <InputText @bind-Value="_entradaForm.IdentificacaoCircuito" class="form-control" placeholder="Ex: Circuito 5 - Ar-Condicionado" />
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Potência (W)</label>
+                                <InputNumber @bind-Value="_entradaForm.PotenciaAtivaWatts" class="form-control" />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Tensão (V)</label>
+                                <InputNumber @bind-Value="_entradaForm.TensaoVolts" class="form-control" />
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Comprimento (m)</label>
+                                <InputNumber @bind-Value="_entradaForm.ComprimentoMetros" class="form-control" />
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Fator de Potência</label>
+                                <InputNumber @bind-Value="_entradaForm.FatorPotencia" class="form-control" step="0.01" />
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Rendimento</label>
+                                <InputNumber @bind-Value="_entradaForm.Rendimento" class="form-control" step="0.01" />
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Tipo de Metal</label>
+                                <InputSelect @bind-Value="_entradaForm.TipoMetal" class="form-select">
+                                    <option value="@TipoMetal.Cobre">Cobre</option>
+                                    <option value="@TipoMetal.Aluminio">Alumínio</option>
+                                </InputSelect>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Tipo de Isolação</label>
+                                <InputSelect @bind-Value="_entradaForm.TipoIsolacao" class="form-select">
+                                    <option value="@TipoIsolacao.PVC">PVC (70°C)</option>
+                                    <option value="@TipoIsolacao.XLPE_EPR">XLPE/EPR (90°C)</option>
+                                </InputSelect>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Método de Instalação</label>
+                                <InputText @bind-Value="_entradaForm.MetodoInstalacao" class="form-control" placeholder="Ex: B1, A1, C, D" />
+                                <small class="text-muted">Conforme Tabelas 36/37 da NBR 5410</small>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Condutores Carregados</label>
+                                <InputSelect @bind-Value="_entradaForm.NumeroCondutoresCarregados" class="form-select">
+                                    <option value="2">2 (Monofásico: F + N)</option>
+                                    <option value="3">3 (Trifásico: 3F ou 2F + N)</option>
+                                </InputSelect>
+                                <small class="text-muted">NBR 5410 considera apenas 2 ou 3 condutores</small>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Temperatura Ambiente (°C)</label>
+                                <InputNumber @bind-Value="_entradaForm.TemperaturaAmbienteCelsius" class="form-control" />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Circuitos Agrupados</label>
+                                <InputNumber @bind-Value="_entradaForm.NumeroCircuitosAgrupados" class="form-control" />
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Tipo de Linha</label>
+                            <InputSelect @bind-Value="_entradaForm.TipoLinha" class="form-select">
+                                <option value="@TipoLinha.NaoSubterranea">Não Subterrânea</option>
+                                <option value="@TipoLinha.Subterranea">Subterrânea</option>
+                            </InputSelect>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="bi bi-calculator-fill"></i> Calcular Dimensionamento
+                            </button>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            @if (_resultado != null)
+            {
+                <div class="card shadow-sm">
+                    <div class="card-header @(_resultado.Aprovado ? "bg-success" : "bg-danger") text-white">
+                        <h5 class="mb-0">
+                            <i class="bi @(_resultado.Aprovado ? "bi-check-circle-fill" : "bi-x-circle-fill")"></i>
+                            @(_resultado.Aprovado ? "APROVADO" : "REPROVADO")
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <h6 class="text-primary mb-3">Resultado Final</h6>
+                        <div class="alert alert-info">
+                            <div class="row text-center">
+                                <div class="col-6">
+                                    <small class="text-muted">Condutor Fase</small>
+                                    <h3 class="text-primary mb-0">@_resultado.SecaoNominalFase mm²</h3>
+                                </div>
+                                <div class="col-6">
+                                    <small class="text-muted">Condutor PE</small>
+                                    <h3 class="text-success mb-0">@_resultado.SecaoNominalPE mm²</h3>
+                                </div>
+                            </div>
+                        </div>
+
+                        <h6 class="text-primary mb-3 mt-4">Cálculos</h6>
+                        <table class="table table-sm">
+                            <tr>
+                                <td>Corrente de Projeto (Ib)</td>
+                                <td class="text-end"><strong>@_resultado.CorrenteProjetoIb.ToString("F2") A</strong></td>
+                            </tr>
+                            <tr>
+                                <td>FCT (Temperatura)</td>
+                                <td class="text-end">@_resultado.FatorCorrecaoTemperatura.ToString("F3")</td>
+                            </tr>
+                            <tr>
+                                <td>FRT (Resistividade Solo)</td>
+                                <td class="text-end">@_resultado.FatorResistividadeSolo.ToString("F3")</td>
+                            </tr>
+                            <tr>
+                                <td>FCA (Agrupamento)</td>
+                                <td class="text-end">@_resultado.FatorCorrecaoAgrupamento.ToString("F3")</td>
+                            </tr>
+                            <tr>
+                                <td>Iz (Capacidade Tabela)</td>
+                                <td class="text-end">@_resultado.CapacidadeTabelaIz.ToString("F2") A</td>
+                            </tr>
+                            <tr>
+                                <td>Iz' (Capacidade Corrigida)</td>
+                                <td class="text-end"><strong>@_resultado.CapacidadeCorrigidaIzLinha.ToString("F2") A</strong></td>
+                            </tr>
+                            <tr class="@(_resultado.QuedaTensaoPercentual > 4.0 ? "table-danger" : "table-success")">
+                                <td>Queda de Tensão (ΔU)</td>
+                                <td class="text-end"><strong>@_resultado.QuedaTensaoPercentual.ToString("F2")%</strong></td>
+                            </tr>
+                        </table>
+
+                        @if (_resultado.Mensagens.Any())
+                        {
+                            <h6 class="text-primary mb-3 mt-4">Observações</h6>
+                            <ul class="list-group list-group-flush">
+                                @foreach (var mensagem in _resultado.Mensagens)
+                                {
+                                    <li class="list-group-item small">@mensagem</li>
+                                }
+                            </ul>
+                        }
+
+                        <div class="d-grid gap-2 mt-4">
+                            <button class="btn btn-outline-primary" @onclick="GerarPDF">
+                                <i class="bi bi-file-pdf"></i> Gerar Relatório PDF
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="card shadow-sm">
+                    <div class="card-body text-center text-muted py-5">
+                        <i class="bi bi-calculator" style="font-size: 4rem;"></i>
+                        <p class="mt-3">Preencha os dados e clique em "Calcular" para ver o resultado</p>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    private DadosEntradaForm _entradaForm = new()
+    {
+        IdentificacaoCircuito = "Circuito 5 - Ar-Condicionado 12.000 BTU",
+        PotenciaAtivaWatts = 1320.0,
+        TensaoVolts = 220.0,
+        ComprimentoMetros = 25.0,
+        FatorPotencia = 0.92,
+        Rendimento = 0.85,
+        TipoMetal = TipoMetal.Cobre,
+        TipoIsolacao = TipoIsolacao.PVC,
+        MetodoInstalacao = "B1",
+        NumeroCondutoresCarregados = 2,
+        TemperaturaAmbienteCelsius = 35,
+        NumeroCircuitosAgrupados = 3,
+        TipoLinha = TipoLinha.NaoSubterranea,
+        ResistividadeTermicaSoloKmW = null
+    };
+
+    private ResultadoDimensionamento? _resultado;
+    private readonly DimensionamentoService _servico = new();
+
+    private void CalcularDimensionamento()
+    {
+        // Converter DadosEntradaForm para DadosEntrada (record imutável)
+        var dados = new DadosEntrada
+        {
+            IdentificacaoCircuito = _entradaForm.IdentificacaoCircuito,
+            PotenciaAtivaWatts = _entradaForm.PotenciaAtivaWatts,
+            TensaoVolts = _entradaForm.TensaoVolts,
+            ComprimentoMetros = _entradaForm.ComprimentoMetros,
+            FatorPotencia = _entradaForm.FatorPotencia,
+            Rendimento = _entradaForm.Rendimento,
+            TipoMetal = _entradaForm.TipoMetal,
+            TipoIsolacao = _entradaForm.TipoIsolacao,
+            MetodoInstalacao = _entradaForm.MetodoInstalacao,
+            NumeroCondutoresCarregados = _entradaForm.NumeroCondutoresCarregados,
+            TemperaturaAmbienteCelsius = _entradaForm.TemperaturaAmbienteCelsius,
+            NumeroCircuitosAgrupados = _entradaForm.NumeroCircuitosAgrupados,
+            TipoLinha = _entradaForm.TipoLinha,
+            ResistividadeTermicaSoloKmW = _entradaForm.ResistividadeTermicaSoloKmW
+        };
+        
+        _resultado = _servico.Calcular(dados);
+    }
+
+    private async Task GerarPDF()
+    {
+        if (_resultado == null) return;
+
+        try
+        {
+            var pdfBytes = RelatorioCondutorPDF.GerarBytes(_resultado);
+            var fileName = $"dimensionamento_{DateTime.Now:yyyyMMdd_HHmmss}.pdf";
+            
+            await JS.InvokeVoidAsync("downloadFile", fileName, Convert.ToBase64String(pdfBytes));
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Erro ao gerar PDF: {ex.Message}");
+        }
+    }
+}

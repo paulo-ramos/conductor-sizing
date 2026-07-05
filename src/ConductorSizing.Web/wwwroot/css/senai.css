@@ -1,0 +1,72 @@
+/* Cores SENAI */
+:root {
+    --senai-vermelho: #E30613;
+    --senai-vermelho-escuro: #B60510;
+    --senai-cinza: #58595B;
+    --senai-cinza-claro: #E5E5E5;
+}
+
+/* Substituir cores primárias do Bootstrap */
+.bg-primary,
+.btn-primary {
+    background-color: var(--senai-vermelho) !important;
+    border-color: var(--senai-vermelho) !important;
+}
+
+.btn-primary:hover {
+    background-color: var(--senai-vermelho-escuro) !important;
+    border-color: var(--senai-vermelho-escuro) !important;
+}
+
+.text-primary {
+    color: var(--senai-vermelho) !important;
+}
+
+/* Card headers SENAI */
+.card-header.bg-primary {
+    background-color: var(--senai-vermelho) !important;
+}
+
+/* Links e navegação */
+a {
+    color: var(--senai-vermelho);
+}
+
+a:hover {
+    color: var(--senai-vermelho-escuro);
+}
+
+/* Botões de outline */
+.btn-outline-primary {
+    color: var(--senai-vermelho);
+    border-color: var(--senai-vermelho);
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--senai-vermelho);
+    border-color: var(--senai-vermelho);
+    color: white;
+}
+
+/* Títulos */
+h1, h2, h3, h4, h5, h6 {
+    color: var(--senai-cinza);
+}
+
+/* Alertas e status */
+.alert-info {
+    background-color: var(--senai-cinza-claro);
+    border-color: var(--senai-cinza);
+    color: var(--senai-cinza);
+}
+
+/* Navbar */
+.navbar-dark {
+    background-color: var(--senai-vermelho) !important;
+}
+
+/* Linhas horizontais */
+hr {
+    border-color: var(--senai-vermelho);
+    opacity: 0.3;
+}
