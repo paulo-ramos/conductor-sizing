@@ -122,9 +122,6 @@ public class RelatorioCondutorPDF
             // PASSO 5: Condutor de Proteção
             column.Item().Element(c => CriarPasso5(c, resultado));
             
-            // Quebra de página antes do resultado final
-            column.Item().PageBreak();
-            
             // Resultado Final
             column.Item().Element(c => CriarResultadoFinal(c, resultado));
         });
@@ -264,7 +261,7 @@ public class RelatorioCondutorPDF
                 {
                     c.Item().PaddingTop(6).Background(Colors.Orange.Lighten4).BorderLeft(3).BorderColor(Colors.Orange.Darken2).Padding(6).Column(aviso =>
                     {
-                        aviso.Item().Text("⚠ BITOLA MÍNIMA CONFORME NBR 5410").FontSize(8).Bold().FontColor(Colors.Orange.Darken3);
+                        aviso.Item().Text("BITOLA MÍNIMA CONFORME NBR 5410").FontSize(8).Bold().FontColor(Colors.Orange.Darken3);
                         aviso.Item().PaddingTop(2).Text(text =>
                         {
                             text.Span("A Tabela 47 da NBR 5410:2004 estabelece que circuitos de ")

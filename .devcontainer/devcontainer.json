@@ -1,26 +1,19 @@
 {
   "name": "Conductor Sizing - .NET 8",
-  "build": {
-    "dockerfile": "Dockerfile",
-    "context": ".."
-  },
-  
-  // Usuário não-root para compatibilidade com Podman
-  "remoteUser": "vscode",
-  
-  // Configuração de mounts com flag :Z para SELinux (Fedora + Podman)
-  "mounts": [
-    "source=${localWorkspaceFolder},target=/workspace,type=bind,Z"
+  "dockerFile": "Dockerfile",
+  "runArgs": [
+    "--name=conductor-sizing-devcontainer",
+    "--userns=keep-id",
+    "--security-opt=label=disable"
   ],
-  
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind,Z",
   "workspaceFolder": "/workspace",
-  
-  // Extensões VS Code recomendadas
   "customizations": {
     "vscode": {
       "extensions": [
-        "ms-dotnettools.csharp",
         "ms-dotnettools.csdevkit",
+        "ms-dotnettools.csharp",
+        "ms-dotnettools.vscode-dotnet-runtime",
         "kreativ-software.csharpextensions",
         "jongrant.csharpsortusings",
         "patcx.vscode-nuget-gallery",
@@ -28,36 +21,37 @@
       ],
       "settings": {
         "terminal.integrated.defaultProfile.linux": "bash",
-        "dotnet.defaultSolution": "ConductorSizing.sln"
+        "dotnet.defaultSolution": "ConductorSizing.sln",
+        "omnisharp.useModernNet": true,
+        "dotnet.server.useOmnisharp": false
       }
     }
   },
-  
-  // Portas para futuro Web API (opcional)
   "forwardPorts": [5000, 5001],
-  
-  // Comandos pós-criação do container
-  "postCreateCommand": "dotnet restore",
-  
-  // Features adicionais
+  "portsAttributes": {
+    "5000": {
+      "label": "Conductor Sizing HTTP",
+      "onAutoForward": "notify"
+    },
+    "5001": {
+      "label": "Conductor Sizing HTTPS",
+      "onAutoForward": "notify"
+    }
+  },
+  "postCreateCommand": "dotnet restore && dotnet build",
+  "remoteUser": "vscode",
   "features": {
-    "ghcr.io/devcontainers/features/git:1": {},
     "ghcr.io/devcontainers/features/common-utils:2": {
       "installZsh": true,
+      "installOhMyZsh": true,
+      "upgradePackages": true,
       "username": "vscode",
       "userUid": "1000",
       "userGid": "1000"
+    },
+    "ghcr.io/devcontainers/features/git:1": {
+      "version": "latest",
+      "ppa": false
     }
-  },
-  
-  // Configurações de segurança compatíveis com Podman
-  "runArgs": [
-    "--userns=keep-id"
-  ],
-  
-  // Permissões necessárias
-  "containerEnv": {
-    "DOTNET_CLI_TELEMETRY_OPTOUT": "1",
-    "DOTNET_SKIP_FIRST_TIME_EXPERIENCE": "1"
   }
 }

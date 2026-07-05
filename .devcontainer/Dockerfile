@@ -1,59 +1,52 @@
-# Base: .NET 8 SDK oficial (Debian Bookworm Slim)
-FROM mcr.microsoft.com/dotnet/sdk:8.0-bookworm-slim
+# Dev Container para Conductor Sizing com .NET 8
+FROM mcr.microsoft.com/dotnet/sdk:8.0-jammy
 
-# Argumentos para customização do usuário
-ARG USERNAME=vscode
-ARG USER_UID=1000
-ARG USER_GID=1000
-
-# Instalar dependências do sistema
+# Instalar dependências adicionais
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
     && apt-get -y install --no-install-recommends \
-        # Ferramentas básicas
-        git \
-        curl \
-        wget \
-        ca-certificates \
-        procps \
-        gnupg2 \
-        lsb-release \
-        # Dependências nativas para SkiaSharp (usado pelo QuestPDF)
-        libfontconfig1 \
-        libfreetype6 \
-        libharfbuzz0b \
-        libicu72 \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+    git \
+    curl \
+    wget \
+    ca-certificates \
+    sudo \
+    libfontconfig1 \
+    libfreetype6 \
+    libharfbuzz0b \
+    libicu70 \
+    && apt-get clean -y && rm -rf /var/lib/apt/lists/*
 
-# Criar usuário não-root com UID/GID compatíveis com Fedora host
+# Criar usuário vscode para desenvolvimento
+ARG USERNAME=vscode
+ARG USER_UID=1000
+ARG USER_GID=$USER_UID
+
 RUN groupadd --gid $USER_GID $USERNAME \
-    && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME -s /bin/bash \
-    && mkdir -p /home/$USERNAME/.dotnet /home/$USERNAME/.nuget \
-    && chown -R $USERNAME:$USERNAME /home/$USERNAME
-
-# Adicionar sudo (opcional, para troubleshooting)
-RUN apt-get update \
-    && apt-get -y install sudo \
+    && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME \
     && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
-    && chmod 0440 /etc/sudoers.d/$USERNAME \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+    && chmod 0440 /etc/sudoers.d/$USERNAME
 
-# Configurar permissões do workspace
-RUN mkdir -p /workspace && chown -R $USERNAME:$USERNAME /workspace
-
-# Instalar ferramentas .NET globais como usuário vscode
-USER $USERNAME
-
-# Instalar ferramentas de desenvolvimento .NET (opcional)
-RUN dotnet tool install -g dotnet-ef || true \
-    && dotnet tool install -g dotnet-format || true
-
-# Configurar PATH para ferramentas globais
-ENV PATH="$PATH:/home/$USERNAME/.dotnet/tools"
-
-# Diretório de trabalho
+# Configurar diretório de trabalho com permissões corretas
 WORKDIR /workspace
 
-# Comando padrão
+# Dar permissões ao usuário vscode no diretório de trabalho
+RUN chown -R $USERNAME:$USERNAME /workspace
+
+# Mudar para o usuário vscode
+USER $USERNAME
+
+# Configurar Git para confiar no diretório de trabalho
+RUN git config --global --add safe.directory /workspace
+
+# Instalar ferramentas .NET globais úteis
+RUN dotnet tool install --global dotnet-ef
+
+# Tentar instalar dotnet-aspnet-codegenerator (opcional, pode falhar)
+RUN dotnet tool install --global dotnet-aspnet-codegenerator || true
+
+# Adicionar ferramentas ao PATH
+ENV PATH="${PATH}:/home/${USERNAME}/.dotnet/tools"
+
+# Expor portas para desenvolvimento
+EXPOSE 5000 5001
+
 CMD ["/bin/bash"]

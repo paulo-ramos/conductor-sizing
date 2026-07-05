@@ -1,31 +1,44 @@
 using ConductorSizing.Web.Components;
+using ConductorSizing.Application.Services;
+using ConductorSizing.Domain.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configurar porta para Railway (usa variável de ambiente PORT)
-var port = Environment.GetEnvironmentVariable("PORT") ?? "5000";
+// Configurar Kestrel para container local
 builder.WebHost.ConfigureKestrel(options =>
 {
-    options.ListenAnyIP(int.Parse(port));
+    var port = builder.Configuration.GetValue<int?>("Port") ?? 8080;
+    options.ListenAnyIP(port);
 });
 
-// Add services to the container.
+// Adicionar serviços ao container
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
+// Registrar serviços da aplicação
+builder.Services.AddScoped<IDimensionamentoService, DimensionamentoService>();
+
+// Configurar SignalR para melhor performance em tempo real
+builder.Services.AddSignalR(options =>
+{
+    options.MaximumReceiveMessageSize = 102400; // 100 KB
+    options.EnableDetailedErrors = builder.Environment.IsDevelopment();
+});
+
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Configurar o pipeline de requisições HTTP
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
+else
+{
+    app.UseDeveloperExceptionPage();
+}
 
-// Railway gerencia HTTPS, então não redireciona internamente
-// app.UseHttpsRedirection();
-
+app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseAntiforgery();
 
