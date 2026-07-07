@@ -150,6 +150,20 @@
                             </svg>
                             Calcular Dimensionamento
                         </button>
+
+                        <!-- Error Message -->
+                        @if (!string.IsNullOrEmpty(_erroMensagem))
+                        {
+                            <div class="p-4 bg-red-50 border border-red-200 rounded-xl flex items-start">
+                                <svg class="w-5 h-5 text-red-600 mr-2 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                                </svg>
+                                <div class="flex-1">
+                                    <h4 class="text-sm font-semibold text-red-800 mb-1">Erro</h4>
+                                    <p class="text-sm text-red-700">@_erroMensagem</p>
+                                </div>
+                            </div>
+                        }
                     </EditForm>
                 </div>
             </div>
@@ -289,49 +303,89 @@
 </div>
 
 @code {
-    private DadosEntradaForm _entrada = new()
-    {
-        IdentificacaoCircuito = "Circuito 5 - Ar-Condicionado 12.000 BTU",
-        PotenciaAtivaWatts = 1320.0,
-        TensaoVolts = 220.0,
-        ComprimentoMetros = 25.0,
-        FatorPotencia = 0.92,
-        Rendimento = 0.85,
-        TipoMetal = TipoMetal.Cobre,
-        TipoIsolacao = TipoIsolacao.PVC,
-        MetodoInstalacao = "B1",
-        NumeroCondutoresCarregados = 2,
-        TemperaturaAmbienteCelsius = 35,
-        NumeroCircuitosAgrupados = 3,
-        TipoLinha = TipoLinha.NaoSubterranea,
-        ResistividadeTermicaSoloKmW = null
-    };
-
+    private DadosEntradaForm _entrada = new();
     private ResultadoDimensionamento? _resultado;
+    private string? _erroMensagem;
+
+    protected override void OnInitialized()
+    {
+        // Inicializar com valores padrão sempre que o componente for carregado
+        InicializarValoresPadrao();
+    }
+
+    private void InicializarValoresPadrao()
+    {
+        _entrada = new DadosEntradaForm
+        {
+            IdentificacaoCircuito = "Circuito 5 - Ar-Condicionado 12.000 BTU",
+            PotenciaAtivaWatts = 1320.0,
+            TensaoVolts = 220.0,
+            ComprimentoMetros = 25.0,
+            FatorPotencia = 0.92,
+            Rendimento = 0.85,
+            TipoMetal = TipoMetal.Cobre,
+            TipoIsolacao = TipoIsolacao.PVC,
+            MetodoInstalacao = "B1",
+            NumeroCondutoresCarregados = 2,
+            TemperaturaAmbienteCelsius = 35,
+            NumeroCircuitosAgrupados = 3,
+            TipoLinha = TipoLinha.NaoSubterranea,
+            ResistividadeTermicaSoloKmW = null
+        };
+    }
 
     private void CalcularDimensionamento()
     {
-        // Converter DadosEntradaForm (mutável) para DadosEntrada (record imutável)
-        var dados = new DadosEntrada
+        try
         {
-            IdentificacaoCircuito = _entrada.IdentificacaoCircuito,
-            PotenciaAtivaWatts = _entrada.PotenciaAtivaWatts,
-            TensaoVolts = _entrada.TensaoVolts,
-            ComprimentoMetros = _entrada.ComprimentoMetros,
-            FatorPotencia = _entrada.FatorPotencia,
-            Rendimento = _entrada.Rendimento,
-            TipoMetal = _entrada.TipoMetal,
-            TipoIsolacao = _entrada.TipoIsolacao,
-            MetodoInstalacao = _entrada.MetodoInstalacao,
-            NumeroCondutoresCarregados = _entrada.NumeroCondutoresCarregados,
-            TemperaturaAmbienteCelsius = _entrada.TemperaturaAmbienteCelsius,
-            NumeroCircuitosAgrupados = _entrada.NumeroCircuitosAgrupados,
-            TipoLinha = _entrada.TipoLinha,
-            ResistividadeTermicaSoloKmW = _entrada.ResistividadeTermicaSoloKmW
-        };
-        
-        // Executar o dimensionamento
-        _resultado = DimensionamentoService.Calcular(dados);
+            _erroMensagem = null;
+            
+            // Validar dados antes de converter
+            if (string.IsNullOrWhiteSpace(_entrada.MetodoInstalacao))
+            {
+                _erroMensagem = "Método de instalação é obrigatório.";
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(_entrada.IdentificacaoCircuito))
+            {
+                _erroMensagem = "Identificação do circuito é obrigatória.";
+                return;
+            }
+
+            if (_entrada.PotenciaAtivaWatts <= 0 || _entrada.TensaoVolts <= 0 || _entrada.ComprimentoMetros <= 0)
+            {
+                _erroMensagem = "Potência, Tensão e Comprimento devem ser maiores que zero.";
+                return;
+            }
+
+            // Converter DadosEntradaForm (mutável) para DadosEntrada (record imutável)
+            var dados = new DadosEntrada
+            {
+                IdentificacaoCircuito = _entrada.IdentificacaoCircuito,
+                PotenciaAtivaWatts = _entrada.PotenciaAtivaWatts,
+                TensaoVolts = _entrada.TensaoVolts,
+                ComprimentoMetros = _entrada.ComprimentoMetros,
+                FatorPotencia = _entrada.FatorPotencia,
+                Rendimento = _entrada.Rendimento,
+                TipoMetal = _entrada.TipoMetal,
+                TipoIsolacao = _entrada.TipoIsolacao,
+                MetodoInstalacao = _entrada.MetodoInstalacao,
+                NumeroCondutoresCarregados = _entrada.NumeroCondutoresCarregados,
+                TemperaturaAmbienteCelsius = _entrada.TemperaturaAmbienteCelsius,
+                NumeroCircuitosAgrupados = _entrada.NumeroCircuitosAgrupados,
+                TipoLinha = _entrada.TipoLinha,
+                ResistividadeTermicaSoloKmW = _entrada.ResistividadeTermicaSoloKmW
+            };
+            
+            // Executar o dimensionamento
+            _resultado = DimensionamentoService.Calcular(dados);
+        }
+        catch (Exception ex)
+        {
+            _erroMensagem = $"Erro ao calcular dimensionamento: {ex.Message}";
+            Console.WriteLine($"Erro detalhado: {ex}");
+        }
     }
 
     private async Task GerarPDF()
@@ -351,12 +405,15 @@
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Erro ao gerar PDF: {ex.Message}");
+            _erroMensagem = $"Erro ao gerar PDF: {ex.Message}";
+            Console.WriteLine($"Erro ao gerar PDF: {ex}");
         }
     }
 
     private void LimparFormulario()
     {
         _resultado = null;
+        _erroMensagem = null;
+        InicializarValoresPadrao();
     }
 }

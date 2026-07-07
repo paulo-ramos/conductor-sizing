@@ -32,11 +32,11 @@ builder.Services.AddScoped<IDimensionamentoService, DimensionamentoService>();
 // Configurar SignalR para funcionar em produção atrás de proxy
 builder.Services.AddSignalR(options =>
 {
-    options.MaximumReceiveMessageSize = 1024 * 1024; // 1 MB
+    options.MaximumReceiveMessageSize = 10 * 1024 * 1024; // 10 MB (aumentado de 1 MB)
     options.EnableDetailedErrors = builder.Environment.IsDevelopment();
     options.HandshakeTimeout = TimeSpan.FromSeconds(30);
     options.KeepAliveInterval = TimeSpan.FromSeconds(15);
-    options.ClientTimeoutInterval = TimeSpan.FromSeconds(60);
+    options.ClientTimeoutInterval = TimeSpan.FromSeconds(120); // Aumentado de 60 para 120 segundos
 });
 
 var app = builder.Build();

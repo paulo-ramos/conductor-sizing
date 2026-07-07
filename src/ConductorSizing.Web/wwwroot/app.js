@@ -10,3 +10,27 @@ window.downloadFileFromStream = async (fileName, byteArray) => {
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
 };
+
+// Aguardar o Blazor estar pronto antes de configurar reconexão
+window.addEventListener('DOMContentLoaded', () => {
+    // Aguardar o Blazor inicializar completamente
+    const interval = setInterval(() => {
+        if (window.Blazor) {
+            clearInterval(interval);
+            
+            // Configurar manipulador de reconexão personalizado
+            const originalStarted = Blazor.start;
+            Blazor.start = function(options) {
+                options = options || {};
+                options.reconnectionOptions = {
+                    maxRetries: 10,
+                    retryIntervalMilliseconds: 3000
+                };
+                
+                return originalStarted.call(this, options);
+            };
+            
+            console.log('Blazor Server configurado com reconexão automática');
+        }
+    }, 100);
+});
