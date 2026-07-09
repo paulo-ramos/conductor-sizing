@@ -303,15 +303,25 @@
 </div>
 
 @code {
-    private DadosEntradaForm _entrada = new();
+    private DadosEntradaForm _entrada = new()
+    {
+        IdentificacaoCircuito = "Circuito 5 - Ar-Condicionado 12.000 BTU",
+        PotenciaAtivaWatts = 1320.0,
+        TensaoVolts = 220.0,
+        ComprimentoMetros = 25.0,
+        FatorPotencia = 0.92,
+        Rendimento = 0.85,
+        TipoMetal = TipoMetal.Cobre,
+        TipoIsolacao = TipoIsolacao.PVC,
+        MetodoInstalacao = "B1",
+        NumeroCondutoresCarregados = 2,
+        TemperaturaAmbienteCelsius = 35,
+        NumeroCircuitosAgrupados = 3,
+        TipoLinha = TipoLinha.NaoSubterranea,
+        ResistividadeTermicaSoloKmW = null
+    };
     private ResultadoDimensionamento? _resultado;
     private string? _erroMensagem;
-
-    protected override void OnInitialized()
-    {
-        // Inicializar com valores padrão sempre que o componente for carregado
-        InicializarValoresPadrao();
-    }
 
     private void InicializarValoresPadrao()
     {
@@ -356,6 +366,36 @@
             if (_entrada.PotenciaAtivaWatts <= 0 || _entrada.TensaoVolts <= 0 || _entrada.ComprimentoMetros <= 0)
             {
                 _erroMensagem = "Potência, Tensão e Comprimento devem ser maiores que zero.";
+                return;
+            }
+
+            if (_entrada.FatorPotencia <= 0 || _entrada.FatorPotencia > 1)
+            {
+                _erroMensagem = "Fator de Potência deve estar entre 0 e 1.";
+                return;
+            }
+
+            if (_entrada.Rendimento <= 0 || _entrada.Rendimento > 1)
+            {
+                _erroMensagem = "Rendimento deve estar entre 0 e 1.";
+                return;
+            }
+
+            if (_entrada.NumeroCondutoresCarregados != 2 && _entrada.NumeroCondutoresCarregados != 3)
+            {
+                _erroMensagem = "Número de condutores carregados deve ser 2 ou 3.";
+                return;
+            }
+
+            if (_entrada.TemperaturaAmbienteCelsius < -20 || _entrada.TemperaturaAmbienteCelsius > 80)
+            {
+                _erroMensagem = "Temperatura ambiente deve estar entre -20°C e 80°C.";
+                return;
+            }
+
+            if (_entrada.NumeroCircuitosAgrupados < 1)
+            {
+                _erroMensagem = "Número de circuitos agrupados deve ser no mínimo 1.";
                 return;
             }
 
