@@ -11,6 +11,11 @@ window.downloadFileFromStream = async (fileName, byteArray) => {
     URL.revokeObjectURL(url);
 };
 
+// Função para forçar scroll para o topo da página
+window.scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+};
+
 // Aguardar o Blazor estar pronto antes de configurar reconexão
 window.addEventListener('DOMContentLoaded', () => {
     // Aguardar o Blazor inicializar completamente

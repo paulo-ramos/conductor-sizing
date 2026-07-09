@@ -144,11 +144,19 @@
 
                         <!-- Submit Button -->
                         <button type="submit" 
-                                class="w-full px-6 py-4 gradient-primary text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-200 flex items-center justify-center">
+                                disabled="@(!_componenteCarregado)"
+                                class="w-full px-6 py-4 gradient-primary text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-200 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none">
                             <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
                             </svg>
-                            Calcular Dimensionamento
+                            @if (!_componenteCarregado)
+                            {
+                                <span>Carregando...</span>
+                            }
+                            else
+                            {
+                                <span>Calcular Dimensionamento</span>
+                            }
                         </button>
 
                         <!-- Error Message -->
@@ -322,6 +330,18 @@
     };
     private ResultadoDimensionamento? _resultado;
     private string? _erroMensagem;
+    private bool _componenteCarregado = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // Forçar scroll para o topo quando a página carregar pela primeira vez
+            await JSRuntime.InvokeVoidAsync("scrollToTop");
+            _componenteCarregado = true;
+            StateHasChanged();
+        }
+    }
 
     private void InicializarValoresPadrao()
     {
@@ -342,6 +362,13 @@
             TipoLinha = TipoLinha.NaoSubterranea,
             ResistividadeTermicaSoloKmW = null
         };
+        
+        Console.WriteLine("Valores padrão inicializados:");
+        Console.WriteLine($"  - Potência: {_entrada.PotenciaAtivaWatts}W");
+        Console.WriteLine($"  - Tensão: {_entrada.TensaoVolts}V");
+        Console.WriteLine($"  - FP: {_entrada.FatorPotencia}");
+        Console.WriteLine($"  - Rendimento: {_entrada.Rendimento}");
+        Console.WriteLine($"  - Método: {_entrada.MetodoInstalacao}");
     }
 
     private void CalcularDimensionamento()
@@ -349,6 +376,13 @@
         try
         {
             _erroMensagem = null;
+            
+            // Garantir que o componente está totalmente carregado
+            if (!_componenteCarregado)
+            {
+                _erroMensagem = "Aguarde o carregamento completo da página.";
+                return;
+            }
             
             // Validar dados antes de converter
             if (string.IsNullOrWhiteSpace(_entrada.MetodoInstalacao))
@@ -418,8 +452,16 @@
                 ResistividadeTermicaSoloKmW = _entrada.ResistividadeTermicaSoloKmW
             };
             
+            Console.WriteLine("Iniciando cálculo com dados:");
+            Console.WriteLine($"  - Potência: {dados.PotenciaAtivaWatts}W");
+            Console.WriteLine($"  - Tensão: {dados.TensaoVolts}V");
+            Console.WriteLine($"  - Comprimento: {dados.ComprimentoMetros}m");
+            Console.WriteLine($"  - FP: {dados.FatorPotencia}");
+            Console.WriteLine($"  - Rendimento: {dados.Rendimento}");
+            
             // Executar o dimensionamento
             _resultado = DimensionamentoService.Calcular(dados);
+            Console.WriteLine($"Cálculo concluído - Aprovado: {_resultado.Aprovado}");
         }
         catch (Exception ex)
         {
