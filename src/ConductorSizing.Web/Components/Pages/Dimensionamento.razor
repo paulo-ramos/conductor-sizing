@@ -149,14 +149,7 @@
                             <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
                             </svg>
-                            @if (!_componenteCarregado)
-                            {
-                                <span>Carregando...</span>
-                            }
-                            else
-                            {
-                                <span>Calcular Dimensionamento</span>
-                            }
+                            Calcular Dimensionamento
                         </button>
 
                         <!-- Error Message -->
@@ -336,10 +329,21 @@
     {
         if (firstRender)
         {
-            // Forçar scroll para o topo quando a página carregar pela primeira vez
-            await JSRuntime.InvokeVoidAsync("scrollToTop");
-            _componenteCarregado = true;
-            StateHasChanged();
+            try
+            {
+                // Forçar scroll para o topo quando a página carregar pela primeira vez
+                await JSRuntime.InvokeVoidAsync("scrollToTop");
+            }
+            catch (Exception ex)
+            {
+                // Ignorar erro de scroll - não é crítico
+                Console.WriteLine($"Aviso: Não foi possível fazer scroll ao topo: {ex.Message}");
+            }
+            finally
+            {
+                _componenteCarregado = true;
+                StateHasChanged();
+            }
         }
     }
 
@@ -376,13 +380,6 @@
         try
         {
             _erroMensagem = null;
-            
-            // Garantir que o componente está totalmente carregado
-            if (!_componenteCarregado)
-            {
-                _erroMensagem = "Aguarde o carregamento completo da página.";
-                return;
-            }
             
             // Validar dados antes de converter
             if (string.IsNullOrWhiteSpace(_entrada.MetodoInstalacao))

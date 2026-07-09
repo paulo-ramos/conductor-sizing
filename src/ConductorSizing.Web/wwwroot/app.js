@@ -1,3 +1,13 @@
+// Função para forçar scroll para o topo da página
+window.scrollToTop = () => {
+    try {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch (e) {
+        // Fallback para navegadores antigos
+        window.scrollTo(0, 0);
+    }
+};
+
 // Função para fazer download de arquivo a partir de um stream de bytes
 window.downloadFileFromStream = async (fileName, byteArray) => {
     const blob = new Blob([byteArray], { type: 'application/pdf' });
@@ -9,11 +19,6 @@ window.downloadFileFromStream = async (fileName, byteArray) => {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-};
-
-// Função para forçar scroll para o topo da página
-window.scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
 };
 
 // Aguardar o Blazor estar pronto antes de configurar reconexão
